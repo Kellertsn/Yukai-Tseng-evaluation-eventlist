@@ -1,0 +1,40 @@
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+button {
+  padding: 4px 6px;
+  border: none;
+  color: #f0f0f0;
+  font-size: 13px;
+}
+
+.event__add-btn,
+.event__submit-btn,
+.event__edit-btn {
+  background-color: #008cba;
+}
+
+.event__cancel-btn,
+.event__delete-btn {
+  background-color: #c94c4c;
+}
+
+table {
+  width: 90%;
+  margin: 10px auto;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid #f0f0f0;
+  padding: 6px;
+  text-align: center;
+}
+
+input {
+  padding: 3px;
+  font-size: 13px;
+}
