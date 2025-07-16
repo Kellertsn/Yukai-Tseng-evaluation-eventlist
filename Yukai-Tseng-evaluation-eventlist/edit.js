@@ -19,7 +19,15 @@ const eventsAPI = (function () {
     }).then((res) => res.json());
   }
 
-  return { getEvents, addEvent, deleteEvent };
+  async function updateEvent(id, updatedEvent) {
+    return fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent),
+    }).then((res) => res.json());
+  }
+
+  return { getEvents, addEvent, deleteEvent, updateEvent };
 })();
 
 class EventsView {
@@ -81,6 +89,34 @@ class EventsView {
       </td>`;
     this.eventList.appendChild(tr);
   }
+
+  switchToEditMode(row) {
+    const name = row.children[0].textContent;
+    const start = row.children[1].textContent;
+    const end = row.children[2].textContent;
+
+    row.innerHTML = `
+    <td><input class="event__input-name" value="${name}" /></td>
+    <td><input type="date" class="event__input-start" value="${start}" /></td>
+    <td><input type="date" class="event__input-end" value="${end}" /></td>
+    <td>
+      <button class="event__save-btn">S</button>
+      <button class="event__cancel-edit-btn">-</button>
+    </td>
+  `;
+  }
+
+  updateEventRow(row, event) {
+    row.innerHTML = `
+    <td>${event.name}</td>
+    <td>${event.start}</td>
+    <td>${event.end}</td>
+    <td>
+      <button class="event__edit-btn">✎</button>
+      <button class="event__delete-btn">🗑</button>
+    </td>
+  `;
+  }
 }
 
 class EventsModel {
@@ -104,6 +140,12 @@ class EventsModel {
   deleteEvent(id) {
     this.#events = this.#events.filter((ev) => ev.id !== id);
   }
+
+  updateEvent(id, updated) {
+    this.#events = this.#events.map((ev) =>
+      ev.id === id ? { ...ev, ...updated } : ev
+    );
+  }
 }
 
 class EventsController {
@@ -121,6 +163,7 @@ class EventsController {
   setUpEvents() {
     this.setUpSubmitEvent();
     this.setUpDeleteEvent();
+    this.setUpEditEvent();
   }
 
   async fetchEvents() {
@@ -175,6 +218,43 @@ class EventsController {
       const target = e.target;
       if (target.classList.contains("event__cancel-btn")) {
         this.view.clearNewForm(target);
+      }
+    });
+  }
+
+  setUpEditEvent() {
+    this.view.eventList.addEventListener("click", async (e) => {
+      const target = e.target;
+
+      if (target.classList.contains("event__edit-btn")) {
+        const row = target.closest("tr");
+        this.view.switchToEditMode(row);
+      }
+
+      if (target.classList.contains("event__save-btn")) {
+        const row = target.closest("tr");
+        const id = row.id;
+        const name = row.querySelector(".event__input-name").value;
+        const start = row.querySelector(".event__input-start").value;
+        const end = row.querySelector(".event__input-end").value;
+
+        if (!name || !start || !end) {
+          alert("All fields are required");
+          return;
+        }
+
+        const updatedEvent = { name, start, end };
+
+        const saved = await eventsAPI.updateEvent(id, updatedEvent);
+        this.model.updateEvent(id, saved);
+        this.view.updateEventRow(row, saved);
+      }
+
+      if (target.classList.contains("event__cancel-edit-btn")) {
+        const row = target.closest("tr");
+        const id = parseInt(row.id);
+        const event = this.model.getEvents().find((ev) => ev.id === id);
+        this.view.updateEventRow(row, event);
       }
     });
   }

@@ -12,18 +12,20 @@ button {
 
 .event__add-btn,
 .event__submit-btn,
-.event__edit-btn {
+.event__edit-btn,
+.event__save-btn {
   background-color: #008cba;
 }
 
 .event__cancel-btn,
-.event__delete-btn {
+.event__delete-btn,
+.event__cancel-edit-btn {
   background-color: #c94c4c;
 }
 
 .event__add-btn {
   display: block;
-  margin: 0 auto;;
+  margin: 0 auto;
 }
 
 table {
